@@ -1,0 +1,115 @@
+
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    16:20:00 10/15/2023 
+// Design Name: 
+// Module Name:    CPLD_Controller 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+module CPLD_Controller (
+    input wire clk,                  // 时钟信号
+    input wire reset,                // 复位信号
+    inout wire [7:0] data_bus,       // 双向8位数据总线
+    input wire ALE,                  // 地址锁存使能
+    input wire WR,                   // 写控制信号
+    input wire RD                    // 读控制信号
+    );
+
+    // 内部寄存器
+    reg [7:0] address_reg;            // 存储锁存的地址
+    reg [7:0] data_out_reg;           // 用于驱动数据总线的数据
+    reg data_bus_en;                  // 数据总线输出使能信号
+
+    // 双口存储器（256字节）
+    reg [7:0] memory_array [0:255];
+
+    // 同步信号寄存器（消除亚稳态）
+    reg ALE_sync_0, ALE_sync_1;
+    reg WR_sync_0, WR_sync_1;
+    reg RD_sync_0, RD_sync_1;
+
+    // 边缘检测寄存器
+    wire ALE_rising_edge;
+    wire WR_falling_edge;
+    wire RD_falling_edge;
+
+    // 同步异步信号
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            ALE_sync_0 <= 1'b0;
+            ALE_sync_1 <= 1'b0;
+            WR_sync_0 <= 1'b1;   // 假设初始WR为高电平
+            WR_sync_1 <= 1'b1;
+            RD_sync_0 <= 1'b1;   // 假设初始RD为高电平
+            RD_sync_1 <= 1'b1;
+        end else begin
+            // 同步ALE
+            ALE_sync_0 <= ALE;
+            ALE_sync_1 <= ALE_sync_0;
+
+            // 同步WR
+            WR_sync_0 <= WR;
+            WR_sync_1 <= WR_sync_0;
+
+            // 同步RD
+            RD_sync_0 <= RD;
+            RD_sync_1 <= RD_sync_0;
+        end
+    end
+
+    // 边缘检测
+    assign ALE_rising_edge = (~ALE_sync_1) & ALE_sync_0;
+    assign WR_falling_edge = WR_sync_1 & (~WR_sync_0);
+    assign RD_falling_edge = RD_sync_1 & (~RD_sync_0);
+
+    // 地址锁存
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            address_reg <= 8'h00;
+        end else if (ALE_rising_edge) begin
+            address_reg <= data_bus;
+        end
+    end
+
+    // 写操作
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            integer i;
+            for (i = 0; i < 256; i = i + 1) begin
+                memory_array[i] <= 8'h00;
+            end
+        end else if (WR_falling_edge) begin
+            memory_array[address_reg] <= data_bus;
+        end
+    end
+
+    // 读操作：在RD下降沿时，将数据驱动到data_out_reg，并启用数据总线输出
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            data_out_reg <= 8'h00;
+            data_bus_en <= 1'b0;
+        end else if (RD_falling_edge) begin
+            data_out_reg <= memory_array[address_reg];
+            data_bus_en <= 1'b1;   // 使能数据总线输出
+        end else if (RD_sync_0 & RD_sync_1) begin
+            data_bus_en <= 1'b0;   // RD 信号回到高电平，禁用数据总线输出
+        end
+    end
+
+    // 驱动数据总线（高阻状态）
+    assign data_bus = data_bus_en ? data_out_reg : 8'bz;
+
+endmodule
