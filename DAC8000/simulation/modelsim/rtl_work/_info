@@ -1,0 +1,65 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/simulation/modelsim
+T_opt
+Z1 !s110 1733130530
+V3RO<OBnZ4d`_gIH:amI@X3
+04 11 4 work tb_DDS_CTRL fast 0
+=1-207bd2eec680-674d7922-1ae-6440
+o-quiet -auto_acc_if_foreign -work work -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L maxii_ver -L rtl_work -L work +acc
+Z2 tCvgOpt 0
+n@_opt
+OL;O;10.5;63
+vDDS_CTRL
+!s110 1733130529
+!i10b 1
+!s100 Pc`4ED38lAQVALGAGf0;W3
+IIzB^k39CQea?C;k2zF5z02
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1733130518
+8C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/DDS_CTRL.vt
+FC:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/DDS_CTRL.vt
+L0 26
+Z4 OL;L;10.5;63
+r1
+!s85 0
+31
+!s108 1733130529.000000
+!s107 C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/DDS_CTRL.vt|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL|C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/DDS_CTRL.vt|
+!i113 0
+Z5 o-vlog01compat -work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z6 !s92 -vlog01compat -work work +incdir+C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R2
+n@d@d@s_@c@t@r@l
+vtb_DDS_CTRL
+R1
+!i10b 1
+!s100 ZUXCC^O:ASXnUdR^C@Ymg3
+I2hIJg8kkGL]=XIX4ToGE=2
+R3
+R0
+w1732602379
+8C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/tb_DDS_CTRL.vt
+FC:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/tb_DDS_CTRL.vt
+L0 3
+R4
+r1
+!s85 0
+31
+!s108 1733130530.000000
+!s107 C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/tb_DDS_CTRL.vt|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL|C:/Users/22186/Desktop/My_Project/HOPE_9201/CPLD/DAC8000/RTL/tb_DDS_CTRL.vt|
+!i113 0
+R5
+R6
+R2
+ntb_@d@d@s_@c@t@r@l

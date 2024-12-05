@@ -1,0 +1,100 @@
+`timescale 1ns / 1ps
+ 
+// AD7606 控制信号生成的测试平台
+module AD7606_CTRL_tb;
+ 
+    reg clk;
+    reg rst_n;
+    reg [15:0] ad_data;
+    reg ad_busy;
+    reg ad_first_data;
+ 
+    wire [2:0] ad_os;
+    wire ad_cs;
+    wire ad_rd;
+    wire ad_reset;
+    wire ad_convstb;
+    wire ad_convsta;
+ 
+    // 实例化 AD7606 控制器
+    AD7606_CTRL uut (
+        .clk(clk),
+        .rst_n(rst_n),
+        .ad_data(ad_data),
+        .ad_busy(ad_busy),
+        .ad_first_data(ad_first_data),
+        .ad_os(ad_os),
+        .ad_cs(ad_cs),
+        .ad_rd(ad_rd),
+        .ad_reset(ad_reset),
+        .ad_convstb(ad_convstb),
+        .ad_convsta(ad_convsta)
+    );
+ 
+    // 生成时钟信号
+    initial begin
+        clk = 0;
+        forever #125 clk = ~clk;
+    end
+ 
+    // 初始化复位信号和数据
+    initial begin
+        rst_n = 0;
+        ad_busy = 0;
+        ad_first_data = 0;
+        ad_data = 16'd23546;
+        #250;
+        #500;
+        ad_busy=1'b1;
+        #500;
+        ad_first_data=1'b1;
+        ad_data=16'd1024;
+        #500;
+        ad_data=16'd2048;
+        #500;
+        ad_first_data=1'b0;
+        ad_data=16'd4096;
+        #500;
+        ad_data=16'd8192;
+        #500;
+        ad_data=16'd16384;
+        #500;
+        ad_data=16'd16384;
+        #500;
+        ad_data=16'd8192;
+        #500;
+        ad_data=16'd4096;
+        #500;
+        ad_busy=1'b0;
+        #500;
+        #500;
+        ad_busy=1'b1;
+        #500;
+        ad_first_data=1'b1;
+        ad_data=16'd1024;
+        #500;
+        ad_data=16'd2048;
+        #500;
+        ad_first_data=1'b0;
+        ad_data=16'd4096;
+        #500;
+        ad_data=16'd8192;
+        #500;
+        ad_data=16'd16384;
+        #500;
+        ad_data=16'd16384;
+        #500;
+        ad_data=16'd8192;
+        #500;
+        ad_data=16'd4096;
+        #500;
+        ad_busy=1'b0;
+        #500;
+
+
+        $stop;  // 暂停仿真          
+    end
+ 
+ 
+ 
+endmodule

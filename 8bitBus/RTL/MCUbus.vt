@@ -1,0 +1,115 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    2024/11/27
+// Design Name:     FPGA-MCU 8-bit Bus Communication
+// Module Name:     bus_comm
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+module MCUbus (
+    input wire clk,             // 系统时钟
+    inout wire [7:0] DB,  // 八位双向数据总线
+    input wire ALE,             // 地址锁存使能，低有效
+    input wire WR,              // 写使能，低有效
+    input wire RD               // 读使能，低有效
+);
+// 定义内部寄存器
+reg [7:0] address; // 地址锁存寄存器
+reg [7:0] data_regs50; // 8位数据寄存器 (0x50 - 0x54)
+reg [7:0] data_regs51;
+reg [7:0] data_regs52;
+reg [7:0] data_regs53;
+reg [7:0] data_regs54;
+reg [7:0] data_out; // 用于驱动 DB 的数据
+reg DB_tristate; // 控制 DB 是否驱动
+reg [7:0] check_regs ;
+//
+// 初始化寄存器
+integer i;
+initial begin
+    data_regs50 <= 8'h00;
+    data_regs51 <= 8'h00;
+    data_regs52 <= 8'h00;
+    data_regs53 <= 8'h00;
+    data_regs54 <= 8'h00;
+    address = 8'h50;
+    data_out = 8'h00;
+    DB_tristate = 1'b0;
+end
+
+// 地址锁存逻辑
+always @(*) begin
+    if (~ALE) begin
+            DB_tristate <= 1'b0; // 启动驱动
+            address <= DB;
+        end 
+    else if ((~WR) && ALE)
+        begin
+            DB_tristate <= 1'b0; // 启动驱动
+        end
+    else if ((~RD) && ALE)
+        begin
+            DB_tristate <= 1'b1; // 启动驱动
+        end
+end
+
+//读取写入数据逻辑
+always @(*) begin
+    if ((~WR) && ALE) begin // 确保 ALE 已完成地址锁存
+        case (address)
+            8'h50: data_regs50 <= DB ;
+            8'h51: data_regs51 <= DB ;
+            8'h52: data_regs52 <= DB ;
+            8'h53: data_regs53 <= DB ;
+            8'h54: data_regs54 <= DB ;
+            8'hAA: check_regs <= DB;
+            default: begin
+                     data_regs50 <= (8'hZZ);
+                     data_regs51 <= (8'hZZ);
+                     data_regs52 <= (8'hZZ);
+                     data_regs53 <= (8'hZZ);
+                     data_regs54 <= (8'hZZ);
+                     end 
+        endcase
+    end
+    if ((~RD) && ALE) begin // 确保 ALE 已完成地址锁存
+        
+        case (address)
+            8'h50: begin data_out <= data_regs50; end
+            8'h51: begin data_out <= data_regs51; end
+            8'h52: begin data_out <= data_regs52; end
+            8'h53: begin data_out <= data_regs53; end
+            8'h54: begin data_out <= data_regs54; end
+            8'hAA: begin data_out <= check_regs;  end
+            default: begin
+                     data_out <= (8'hZZ);
+                     end 
+
+        endcase
+        // 可选择处理地址越界的情况
+    end
+end
+
+// 三态缓冲区驱动
+assign DB = (DB_tristate) ? data_out : 8'hZZ;
+
+//always @(posedge clk) begin
+//    DB_tristate<=1;
+//    data_out <=8'h0F;
+//end
+
+
+endmodule
