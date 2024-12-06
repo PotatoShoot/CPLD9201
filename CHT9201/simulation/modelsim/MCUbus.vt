@@ -1,0 +1,105 @@
+// Copyright (C) 1991-2013 Altera Corporation
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and its AMPP partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, Altera MegaCore Function License 
+// Agreement, or other applicable license agreement, including, 
+// without limitation, that your use is for the sole purpose of 
+// programming logic devices manufactured by Altera and sold by 
+// Altera or its authorized distributors.  Please refer to the 
+// applicable agreement for further details.
+
+// *****************************************************************************
+// This file contains a Verilog test bench template that is freely editable to  
+// suit user's needs .Comments are provided in each section to help the user    
+// fill out necessary details.                                                  
+// *****************************************************************************
+// Generated on "12/06/2024 08:01:40"
+                                                                                
+// Verilog Test Bench template for design : MCUbus
+// 
+// Simulation tool : ModelSim (Verilog)
+// 
+
+`timescale 1 ns/ 1 ps
+module MCUbus_vlg_tst();
+// constants                                           
+// general purpose registers
+reg eachvec;
+// test vector input registers
+reg ALE;
+reg [7:0] treg_DB;
+reg RD;
+reg WR;
+reg ad_busy;
+reg [15:0] ad_data;
+reg ad_first_data;
+reg clk;
+reg rst_n;
+// wires                                               
+wire [7:0]  DB;
+wire ad_convsta;
+wire ad_convstb;
+wire ad_cs;
+wire [2:0]  ad_os;
+wire ad_range;
+wire ad_rd;
+wire ad_reset;
+wire ad_stby;
+wire [8:0]  sine_out;
+
+// assign statements (if any)                          
+assign DB = treg_DB;
+MCUbus i1 (
+// port map - connection between master ports and signals/registers   
+	.ALE(ALE),
+	.DB(DB),
+	.RD(RD),
+	.WR(WR),
+	.ad_busy(ad_busy),
+	.ad_convsta(ad_convsta),
+	.ad_convstb(ad_convstb),
+	.ad_cs(ad_cs),
+	.ad_data(ad_data),
+	.ad_first_data(ad_first_data),
+	.ad_os(ad_os),
+	.ad_range(ad_range),
+	.ad_rd(ad_rd),
+	.ad_reset(ad_reset),
+	.ad_stby(ad_stby),
+	.clk(clk),
+	.rst_n(rst_n),
+	.sine_out(sine_out)
+);
+
+
+initial  begin  
+clk = 0;                                             
+// initial block to initialize signals/registers and start the simulation
+ forever
+	#125 clk = ~clk;                                    
+// code that executes only once                        
+// insert code here --> begin                          
+                                                       
+// --> end                                             
+$display("Running testbench");                       
+end                                                    
+initial                                                 
+// optional sensitivity list                           
+// @(event1 or event2 or .... eventn)                  
+begin             
+	#875
+	ad_busy = 1;
+	ad_first_data = 1;
+	#750
+	ad_busy = 0;
+	ad_first_data = 0;
+	#10000
+
+$stop;                                                   
+end                                                    
+endmodule
+
