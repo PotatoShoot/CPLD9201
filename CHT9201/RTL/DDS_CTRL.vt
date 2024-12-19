@@ -27,7 +27,9 @@ module DDS_CTRL (
     input wire clk,             // 系统时钟 50 MHz
     input wire rst_n,           // 复位信号，低电平有效
     input wire [1:0] freq_select, // 频率选择信号
-    output reg [7:0] sine_out   // 输出到 DAC 的 8 位波形数据
+    output reg [7:0] sine_out,   // 输出到 DAC 的 8 位波形数据
+    output reg wave_start,
+    output reg [1:0] wave_freq
 );
 
 
@@ -68,6 +70,10 @@ module DDS_CTRL (
     // 50 Hz: step = 50 * 4294967296 / 1000000 ≈ 214748
     // 60 Hz: step = 60 * 4294967296 / 1000000 ≈ 257698
     // 800 Hz: step = 800 * 4294967296 / 1000000 ≈ 3435973
+    // ADC速度
+    // 在一个50Hz周期内，200kHz可以运行 4000 个周期。
+    // 在一个60Hz周期内，200kHz可以运行 3334 个周期。
+    // 在一个800Hz周期内，200kHz可以运行 250 个周期。
     // 使用参数定义步进值
     localparam [31:0] STEP_50HZ  = 32'd214748;
     localparam [31:0] STEP_60HZ  = 32'd257698;
@@ -80,6 +86,7 @@ module DDS_CTRL (
             2'b10: phase_step = STEP_800HZ;   // 800 Hz
             default: phase_step = STEP_50HZ;   // 默认 50 Hz
         endcase
+        wave_freq <= freq_select;
     end
 
     // 相位累加器更新
@@ -175,6 +182,13 @@ module DDS_CTRL (
         end
     end
 
+    always @(posedge clk) begin
+        if(lut_addr == 6'd0)begin
+            wave_start <= 1'b1;
+        end else begin
+            wave_start <= 1'b0;
+        end
+    end
     
     
  
