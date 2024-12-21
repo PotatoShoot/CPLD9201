@@ -100,6 +100,7 @@ module DDS_CTRL (
 
     // 查找表地址（取相位累加器的高 6 位作为索引）
     wire [5:0] lut_addr;
+    reg  [5:0] last_lut_addr;
     assign lut_addr = phase_accumulator[31:26];
 
     // 定义 64 深度、8 位宽的查找表
@@ -182,15 +183,18 @@ module DDS_CTRL (
         end
     end
 
-    always @(posedge clk) begin
-        if(lut_addr == 6'd0)begin
-            wave_start <= 1'b1;
-        end else begin
+    always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        last_lut_addr <= 6'b0; // 复位时将last_lut_addr清零
+    end else begin
+        if (lut_addr != last_lut_addr) begin
             wave_start <= 1'b0;
+        end else begin
+            wave_start <= 1'b1;
         end
+        last_lut_addr <= lut_addr; // 更新last_lut_addr为当前的lut_addr
     end
-    
-    
+end
  
 endmodule
 
