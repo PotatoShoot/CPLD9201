@@ -74,7 +74,9 @@ reg [7:0] check_regs ;
         .ad_ch6     (ad_ch6),
         .ad_ch7     (ad_ch7),
         .ad_ch8     (ad_ch8),
-        .data_ad_os (data_regs50 [2:0])
+        .data_ad_os (data_regs50 [2:0]),
+        .wave_start (wave_start),
+        .wave_freq  (wave_freq)
     );
 
     wire [15:0]   ad_ch1;
@@ -94,12 +96,15 @@ reg [7:0] check_regs ;
         .clk    (clk),
         .rst_n  (rst_n),
         .freq_select(data_regs50 [4:3]),
-        .sine_out(sine_out)
+        .sine_out(sine_out),
+        .wave_start(wave_start),
+        .wave_freq(wave_freq)
   );
 
     wire [7:0] sine_out_data;
     wire [2:0] freq_select;
-
+    wire wave_start;
+    wire [1:0] wave_freq;
 //////////////////////////////////////////////////////////////////////////////////
 // 初始化寄存器
 integer i;

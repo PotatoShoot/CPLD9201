@@ -27,7 +27,9 @@ module AD7606_CTRL(
     output reg [15:0]  ad_ch5,
     output reg [15:0]  ad_ch6,
     output reg [15:0]  ad_ch7,
-    output reg [15:0]  ad_ch8
+    output reg [15:0]  ad_ch8,
+    input  wire wave_start,
+    input  wire wave_freq
     );
 
 reg [15:0] cnt;
