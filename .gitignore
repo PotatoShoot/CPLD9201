@@ -75,7 +75,6 @@
 *.txt
 *.rpt
 *.jdi
-*.pin
 *.done
 *.cdf
 *.smsg
@@ -87,7 +86,6 @@
 *.sft
 *.wlf
 *.xrf
-*.qsf
 *.qsf_edit
 *.qdb
 *.qpg
