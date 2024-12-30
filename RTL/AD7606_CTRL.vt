@@ -28,8 +28,7 @@ module AD7606_CTRL(
     output reg [15:0]  ad_ch6,
     output reg [15:0]  ad_ch7,
     output reg [15:0]  ad_ch8,
-    input  wire wave_start,
-    input  wire wave_freq
+    input wire       wave_change
     );
 
 reg [15:0] cnt;
@@ -52,27 +51,32 @@ parameter READ_DONE = 4'd12;
 assign  ad_os      = data_ad_os;
 assign  ad_stby    = 1'b1;
 assign  ad_range   = 1'b1;
-assign  ad_cs      = wave_start;
+assign  ad_cs      = 1'b0;
 reg [1:0] reset_counter; // 声明一个2位的计数器
 
+
+////////////////////////////////////////////////////////////////////////////
+
+always @(posedge clk) 
+begin
+    if(!rst_n)begin
+        ad_convsta <= 1'b1;
+        ad_convstb <= 1'b1;
+    end else
+    begin
+            ad_convsta<=~wave_change;
+            ad_convstb<=~wave_change;
+    end
+end
 
 always @(posedge clk) 
 begin
           case(state)
-          AD_CONV: begin	   
-                    if(i==1) begin                             //等待1个clock
-                        ad_convsta<=1'b1;  
-                        ad_convstb<=1'b1;
-                        state<=READ_CH1;
+          AD_CONV: begin
                         ad_rd<=1'b0;
                         i<=0;
-                    end	
-                    else begin
-                        i<=i+1'b1;
-                        ad_convsta<=1'b0;                     //启动AD转换
-                        ad_convstb<=1'b0;
-                    end
-                 end
+                        state<=READ_CH1;
+          end
           READ_CH1: begin 
                      if(ad_first_data==1'b1) begin
                         ad_ch1<=ad_data;                       //读CH1

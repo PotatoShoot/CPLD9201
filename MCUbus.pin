@@ -80,7 +80,7 @@ ad_data[7]                   : 15        : input  : 3.3-V LVTTL       :         
 ad_data[6]                   : 16        : input  : 3.3-V LVTTL       :         : 1         : Y              
 ad_data[5]                   : 17        : input  : 3.3-V LVTTL       :         : 1         : Y              
 ad_data[4]                   : 18        : input  : 3.3-V LVTTL       :         : 1         : Y              
-sine_out[8]                  : 19        : output : 3.3-V LVTTL       :         : 1         : N              
+RESERVED_INPUT               : 19        :        :                   :         : 1         :                
 RESERVED_INPUT               : 20        :        :                   :         : 1         :                
 RESERVED_INPUT               : 21        :        :                   :         : 1         :                
 TMS                          : 22        : input  :                   :         : 1         :                

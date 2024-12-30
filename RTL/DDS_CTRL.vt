@@ -1,96 +1,40 @@
-
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    2024/04/27
-// Design Name:     DDS Waveform Generator
-// Module Name:     dds_waveform
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-// 
-// A Direct Digital Synthesis (DDS) module that generates sine waves at
-// 50Hz, 60Hz, and 800Hz frequencies and outputs them to an 8-bit DAC.
-// The sine wave data is stored in a 64-depth, 8-bit wide lookup table (LUT).
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
-//////////////////////////////////////////////////////////////////////////////////
-
 module DDS_CTRL (
-    input wire clk,             // 系统时钟 50 MHz
-    input wire rst_n,           // 复位信号，低电平有效
-    input wire [1:0] freq_select, // 频率选择信号
-    output reg [7:0] sine_out,   // 输出到 DAC 的 8 位波形数据
-    output reg wave_start,
-    output reg [1:0] wave_freq
+    input wire clk,                // 系统时钟 4 MHz
+    input wire rst_n,              // 复位信号，低电平有效
+    input wire [1:0] freq_select,  // 频率选择信号
+    output reg [7:0] sine_out,     // 输出到 DAC 的 8 位波形数据
+    output reg [1:0] wave_freq,    // 当前选择的频率
+    output reg wave_change         // 波形点位变化脉冲
 );
 
+    // ======= 相位累加器和步进值定义 =======
+    reg [31:0] phase_accumulator;   // 相位累加器
+    reg [31:0] phase_step;          // 步进值
 
-//always @(posedge clk)
-//begin
-//    sine_out <= 8'b11111111;
-//end 
+    // 步进值定义
+    // 根据公式 step_size = (F_out * 2^32) / (F_clk * LUT_size)
+    localparam [31:0] STEP_50HZ  = 32'd53687;   // 50 Hz
+    localparam [31:0] STEP_60HZ  = 32'd64424;   // 60 Hz
+    localparam [31:0] STEP_800HZ = 32'd858993;  // 800 Hz
 
-
-    // 定义 DAC 时钟为 1 MHz，通过分频器生成
-    reg [2:0] clk_div_counter; // 用于分频计数器（50 截断到 1 MHz）
-    wire dac_clk;
-
-    // DAC 时钟分频逻辑
-    // 50 MHz / 50 = 1 MHz，因此需要计数 50 个系统时钟周期
-    // 4 MHz / 4 = 1 MHz，因此需要计数4个系统时钟周期
+    // ======= 频率选择和步进值设置 =======
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            clk_div_counter <= 2'd0;
+            phase_step <= STEP_50HZ;
+            wave_freq  <= 2'b00;
         end else begin
-            if (clk_div_counter == 2'd3) begin
-                clk_div_counter <= 2'd0;
-            end else begin
-                clk_div_counter <= clk_div_counter + 1;
-            end
+            case (freq_select)
+                2'b00: phase_step <= STEP_50HZ;    // 50 Hz
+                2'b01: phase_step <= STEP_60HZ;    // 60 Hz
+                2'b10: phase_step <= STEP_800HZ;   // 800 Hz
+                default: phase_step <= STEP_50HZ;  // 默认 50 Hz
+            endcase
+            wave_freq <= freq_select;
         end
     end
 
-    assign dac_clk = (clk_div_counter == 2'd3) ? 1'b1 : 1'b0;
-
-    // 相位累加器
-    reg [31:0] phase_accumulator;
-    reg [31:0] phase_step;
-
-    // 步进值计算
-    // 步进值 = (频率 * 2^32) / 1,000,000
-    // 对于：
-    // 50 Hz: step = 50 * 4294967296 / 1000000 ≈ 214748
-    // 60 Hz: step = 60 * 4294967296 / 1000000 ≈ 257698
-    // 800 Hz: step = 800 * 4294967296 / 1000000 ≈ 3435973
-    // ADC速度
-    // 在一个50Hz周期内，200kHz可以运行 4000 个周期。
-    // 在一个60Hz周期内，200kHz可以运行 3334 个周期。
-    // 在一个800Hz周期内，200kHz可以运行 250 个周期。
-    // 使用参数定义步进值
-    localparam [31:0] STEP_50HZ  = 32'd214748;
-    localparam [31:0] STEP_60HZ  = 32'd257698;
-    localparam [31:0] STEP_800HZ = 32'd3435973;
-
-    always @(*) begin
-        case (freq_select)
-            2'b00: phase_step = STEP_50HZ;    // 50 Hz
-            2'b01: phase_step = STEP_60HZ;    // 60 Hz
-            2'b10: phase_step = STEP_800HZ;   // 800 Hz
-            default: phase_step = STEP_50HZ;   // 默认 50 Hz
-        endcase
-        wave_freq <= freq_select;
-    end
-
-    // 相位累加器更新
-    always @(posedge dac_clk or negedge rst_n) begin
+    // ======= 相位累加器更新 =======
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             phase_accumulator <= 32'd0;
         end else begin
@@ -98,15 +42,14 @@ module DDS_CTRL (
         end
     end
 
-    // 查找表地址（取相位累加器的高 6 位作为索引）
+    // ======= 查找表地址（取相位累加器的高 6 位作为索引） =======
     wire [5:0] lut_addr;
-    reg  [5:0] last_lut_addr;
     assign lut_addr = phase_accumulator[31:26];
 
-    // 定义 64 深度、8 位宽的查找表
+    // ======= 查找表定义和初始化 =======
     reg [7:0] sine_lut [63:0];
 
- // 初始化查找表
+    // 初始化查找表
     initial begin
         sine_lut[0]  = 8'b11111110;
         sine_lut[1]  = 8'b11010001;
@@ -172,10 +115,27 @@ module DDS_CTRL (
         sine_lut[61] = 8'b01011010;
         sine_lut[62] = 8'b01100110;
         sine_lut[63] = 8'b01001110;
-    end    
+    end
 
-    // 从查找表读取数据并输出
-    always @(posedge dac_clk or negedge rst_n) begin
+    // ======= 波形点位变化检测 =======
+    reg [5:0] prev_lut_addr;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            prev_lut_addr <= 6'd0;
+            wave_change    <= 1'b0;
+        end else begin
+            if (lut_addr != prev_lut_addr) begin
+                wave_change <= 1'b1;
+            end else begin
+                wave_change <= 1'b0;
+            end
+            prev_lut_addr <= lut_addr;
+        end
+    end
+
+    // ======= 从查找表读取数据并输出 =======
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             sine_out <= 8'd0;
         end else begin
@@ -183,18 +143,4 @@ module DDS_CTRL (
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        last_lut_addr <= 6'b0; // 复位时将last_lut_addr清零
-    end else begin
-        if (lut_addr != last_lut_addr) begin
-            wave_start <= 1'b0;
-        end else begin
-            wave_start <= 1'b1;
-        end
-        last_lut_addr <= lut_addr; // 更新last_lut_addr为当前的lut_addr
-    end
-end
- 
 endmodule
-

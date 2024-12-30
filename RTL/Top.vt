@@ -7,7 +7,7 @@ module Top(
     input wire ALE,             // 地址锁存使能，低有效
     input wire WR,              // 写使能，低有效
     input wire RD,               // 读使能，低有效
-    output [8:0] sine_out,
+    output [7:0] sine_out,
     input[15:0]ad_data,  // ad7606 采样数据
     input ad_busy    ,  // ad7606 忙标志位 
     input ad_first_data ,  // ad7606 第一个数据标志位 	
@@ -66,8 +66,7 @@ module Top(
         .ad_ch7     (ad_ch7),
         .ad_ch8     (ad_ch8),
         .data_ad_os (t_data_regs50 [2:0]),
-        .wave_start (wave_start),
-        .wave_freq  (wave_freq)
+        .wave_change (wave_change)
     );
 
     wire [15:0]   ad_ch1;
@@ -88,14 +87,14 @@ module Top(
         .rst_n  (rst_n),
         .freq_select(t_data_regs50 [4:3]),
         .sine_out(sine_out),
-        .wave_start(wave_start),
-        .wave_freq(wave_freq)
+        .wave_freq(wave_freq),
+        .wave_change (wave_change)
   );
 
     wire [7:0] sine_out_data;
-    wire [2:0] freq_select;
-    wire wave_start;
+    wire [1:0] freq_select;
     wire [1:0] wave_freq;
+    wire wave_change;
 
 
 endmodule

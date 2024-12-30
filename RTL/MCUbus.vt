@@ -87,7 +87,7 @@ always @(*) begin
             8'h54: data_regs54 <= DB ;
             8'hAA: check_regs <= DB;
             default: begin
-                     data_regs50 <= (8'hZZ);
+                     data_regs50 <= (8'h00);
                      data_regs51 <= (8'hZZ);
                      data_regs52 <= (8'hZZ);
                      data_regs53 <= (8'hZZ);
