@@ -53,7 +53,7 @@ assign  ad_stby    = 1'b1;
 assign  ad_range   = 1'b1;
 assign  ad_cs      = 1'b0;
 reg [1:0] reset_counter; // 声明一个2位的计数器
-
+reg  readdone_flag;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -73,9 +73,23 @@ always @(posedge clk)
 begin
           case(state)
           AD_CONV: begin
-                        ad_rd<=1'b0;
-                        i<=0;
-                        state<=READ_CH1;
+            if(ad_busy==1'b0) begin
+                if(readdone_flag == 1'b1)
+                begin
+                    ad_rd<=1'b1;
+                    state<=AD_CONV;
+                end else begin
+                    ad_rd<=1'b0;
+                    i<=0;
+                    state<=READ_CH1;
+                end
+                
+            end else begin
+                ad_rd<=1'b1;
+                state<=AD_CONV;
+                readdone_flag <= 1'b0;
+            end
+                        
           end
           READ_CH1: begin 
                      if(ad_first_data==1'b1) begin
@@ -164,7 +178,8 @@ begin
                      ad_rd<=1'b0;
                      i<=0;
                      ad_ch8<=ad_data;                       //读CH8
-                     state<=AD_CONV;				 
+                     state<=AD_CONV;
+                     readdone_flag <= 1'b1;				 
                  end
                  else begin
                      ad_rd<=1'b1;	
@@ -175,10 +190,10 @@ begin
             state<=AD_CONV;
             i<=0;
             cnt<=0;
+            readdone_flag <= 1'b0;
           end
           
           endcase	
-                 
 end 
 
 endmodule
