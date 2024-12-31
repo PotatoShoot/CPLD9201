@@ -118,7 +118,7 @@ RESERVED_INPUT               : 53        :        :                   :         
 RESERVED_INPUT               : 54        :        :                   :         : 2         :                
 RESERVED_INPUT               : 55        :        :                   :         : 2         :                
 RESERVED_INPUT               : 56        :        :                   :         : 2         :                
-rst_n                        : 57        : input  : 3.3-V LVTTL       :         : 2         : N              
+RESERVED_INPUT               : 57        :        :                   :         : 2         :                
 RESERVED_INPUT               : 58        :        :                   :         : 2         :                
 VCCIO2                       : 59        : power  :                   : 3.3V    : 2         :                
 GNDIO                        : 60        : gnd    :                   :         :           :                
@@ -143,9 +143,9 @@ RESERVED_INPUT               : 78        :        :                   :         
 GNDIO                        : 79        : gnd    :                   :         :           :                
 VCCIO2                       : 80        : power  :                   : 3.3V    : 2         :                
 RESERVED_INPUT               : 81        :        :                   :         : 2         :                
-RESERVED_INPUT               : 82        :        :                   :         : 2         :                
+rst_n                        : 82        : input  : 3.3-V LVTTL       :         : 2         : N              
 RESERVED_INPUT               : 83        :        :                   :         : 2         :                
-RESERVED_INPUT               : 84        :        :                   :         : 2         :                
+INT                          : 84        : output : 3.3-V LVTTL       :         : 2         : Y              
 RESERVED_INPUT               : 85        :        :                   :         : 2         :                
 WR                           : 86        : input  : 3.3-V LVTTL       :         : 2         : Y              
 RD                           : 87        : input  : 3.3-V LVTTL       :         : 2         : Y              

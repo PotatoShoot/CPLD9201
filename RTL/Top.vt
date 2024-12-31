@@ -18,7 +18,8 @@ module Top(
     output ad_convstb,  // ad7606 AD convert start
     output ad_convsta,
     output ad_stby,
-    output ad_range
+    output ad_range,
+    output INT
 );
 //////////////////////////////////////////////////////////////////////////////////
 //实例化 MCUbus 模块
@@ -66,7 +67,8 @@ module Top(
         .ad_ch7     (ad_ch7),
         .ad_ch8     (ad_ch8),
         .data_ad_os (t_data_regs50 [2:0]),
-        .wave_change (wave_change)
+        .wave_change (wave_change),
+        .INT        (INT)
     );
 
     wire [15:0]   ad_ch1;

@@ -28,7 +28,8 @@ module AD7606_CTRL(
     output reg [15:0]  ad_ch6,
     output reg [15:0]  ad_ch7,
     output reg [15:0]  ad_ch8,
-    input wire       wave_change
+    input wire       wave_change,
+    output reg INT
     );
 
 reg [15:0] cnt;
@@ -66,6 +67,7 @@ begin
     begin
             ad_convsta<=~wave_change;
             ad_convstb<=~wave_change;
+            INT <= wave_change;
     end
 end
 
