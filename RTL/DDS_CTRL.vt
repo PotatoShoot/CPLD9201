@@ -116,24 +116,6 @@ module DDS_CTRL (
         sine_lut[62] = 8'b01100110;
         sine_lut[63] = 8'b01001110;
     end
-
-    // ======= 波形点位变化检测 =======
-    reg [5:0] prev_lut_addr;
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            prev_lut_addr <= 6'd0;
-            wave_change    <= 1'b0;
-        end else begin
-            if (lut_addr != prev_lut_addr) begin
-                wave_change <= 1'b1;
-            end else begin
-                wave_change <= 1'b0;
-            end
-            prev_lut_addr <= lut_addr;
-        end
-    end
-
     // ======= 从查找表读取数据并输出 =======
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -142,5 +124,66 @@ module DDS_CTRL (
             sine_out <= sine_lut[lut_addr];
         end
     end
+
+    // ======= 采集相位累加器和步进值定义 =======
+    reg [31:0] ad_phase_accumulator;   // 相位累加器
+    reg [31:0] ad_phase_step;          // 步进值
+
+    // 步进值定义
+    // 根据公式 step_size = (F_out * 2^32) / (F_clk * LUT_size)
+    localparam [31:0] AD_STEP_50HZ  = 32'd53687*2;   // 50 Hz
+    localparam [31:0] AD_STEP_60HZ  = 32'd64424*2;   // 60 Hz
+    localparam [31:0] AD_STEP_800HZ = 32'd858993*2;  // 800 Hz
+
+    // ======= 采集频率选择和步进值设置 =======
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            ad_phase_step <= STEP_50HZ;
+        end else begin
+            case (freq_select)
+                2'b00: ad_phase_step <= AD_STEP_50HZ;    // 50 Hz
+                2'b01: ad_phase_step <= AD_STEP_60HZ;    // 60 Hz
+                2'b10: ad_phase_step <= AD_STEP_800HZ;   // 800 Hz
+                default: ad_phase_step <= AD_STEP_50HZ;  // 默认 50 Hz
+            endcase
+        end
+    end
+
+    // ======= 采集相位累加器更新 =======
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            ad_phase_accumulator <= 32'd0;
+        end else begin
+            ad_phase_accumulator <= ad_phase_accumulator + ad_phase_step;
+        end
+    end
+
+    // ======= 采集查找表地址（取相位累加器的高 6 位作为索引） =======
+    wire [5:0] ad_lut_addr;
+    assign ad_lut_addr = ad_phase_accumulator[31:26];
+    
+    // ======= 波形点位变化检测 =======
+    reg [5:0] prev_lut_addr;
+    reg [5:0] ad_prev_lut_addr;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            prev_lut_addr <= 6'd0;
+            wave_change    <= 1'b0;
+        end else begin
+            // if (lut_addr != prev_lut_addr) begin
+            //     wave_change <= 1'b1;
+            // end else begin
+            //     wave_change <= 1'b0;
+            // end
+            if (ad_lut_addr != ad_prev_lut_addr) begin
+                wave_change <= 1'b1;
+            end else begin
+                wave_change <= 1'b0;
+            end
+            ad_prev_lut_addr <= ad_lut_addr;
+        end
+    end
+
+
 
 endmodule
