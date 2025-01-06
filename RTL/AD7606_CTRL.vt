@@ -67,7 +67,6 @@ begin
     begin
             ad_convsta<=~wave_change;
             ad_convstb<=~wave_change;
-            INT <= wave_change;
     end
 end
 
@@ -91,7 +90,7 @@ begin
                 state<=AD_CONV;
                 readdone_flag <= 1'b0;
             end
-                        
+            INT<=1'b0;	            
           end
           READ_CH1: begin 
                      if(ad_first_data==1'b1) begin
@@ -181,7 +180,8 @@ begin
                      i<=0;
                      ad_ch8<=ad_data;                       //读CH8
                      state<=AD_CONV;
-                     readdone_flag <= 1'b1;				 
+                     readdone_flag <= 1'b1;	
+                     INT<=1'b1;			 
                  end
                  else begin
                      ad_rd<=1'b1;	

@@ -103,7 +103,7 @@ ad_convstb                   : 38        : output : 3.3-V LVTTL       :         
 VCCINT                       : 39        : power  :                   : 2.5V/3.3V :           :                
 ad_convsta                   : 40        : output : 3.3-V LVTTL       :         : 1         : Y              
 ad_range                     : 41        : output : 3.3-V LVTTL       :         : 1         : Y              
-RESERVED_INPUT               : 42        :        :                   :         : 1         :                
+rst_n                        : 42        : input  : 3.3-V LVTTL       :         : 1         : N              
 RESERVED_INPUT               : 43        :        :                   :         : 1         :                
 RESERVED_INPUT               : 44        :        :                   :         : 1         :                
 VCCIO1                       : 45        : power  :                   : 3.3V    : 1         :                
@@ -119,7 +119,7 @@ RESERVED_INPUT               : 54        :        :                   :         
 RESERVED_INPUT               : 55        :        :                   :         : 2         :                
 RESERVED_INPUT               : 56        :        :                   :         : 2         :                
 RESERVED_INPUT               : 57        :        :                   :         : 2         :                
-rst_n                        : 58        : input  : 3.3-V LVTTL       :         : 2         : N              
+RESERVED_INPUT               : 58        :        :                   :         : 2         :                
 VCCIO2                       : 59        : power  :                   : 3.3V    : 2         :                
 GNDIO                        : 60        : gnd    :                   :         :           :                
 RESERVED_INPUT               : 61        :        :                   :         : 2         :                
