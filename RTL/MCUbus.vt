@@ -61,7 +61,12 @@ initial begin
     DB_tristate = 1'b0;
 end
 // 地址锁存逻辑
-always @(*) begin
+always @(posedge clk) begin
+    if(~rst_n) begin
+        address <= 8'h00;
+        DB_tristate <= 1'b0; 
+    end
+    else begin
     if (~ALE) begin
             DB_tristate <= 1'b0; // 启动驱动
             address <= DB;
@@ -72,71 +77,73 @@ always @(*) begin
         end
     else if ((~RD) && ALE)
         begin
-            DB_tristate <= 1'b1; // 启动驱动
+            DB_tristate <= 1'b1; 
         end
+    end
 end
 
 //读取写入数据逻辑
-always @(*) begin
-    if ((~WR) && ALE) begin // 确保 ALE 已完成地址锁存
-        case (address)
-            8'h50: data_regs50 <= DB ;
-            8'h51: data_regs51 <= DB ;
-            8'h52: data_regs52 <= DB ;
-            8'h53: data_regs53 <= DB ;
-            8'h54: data_regs54 <= DB ;
-            8'hAA: check_regs <= DB;
-            default: begin
-                     data_regs50 <= (8'h00);
-                     data_regs51 <= (8'hZZ);
-                     data_regs52 <= (8'hZZ);
-                     data_regs53 <= (8'hZZ);
-                     data_regs54 <= (8'hZZ);
-                     end 
-        endcase
+always @(posedge clk) begin
+    if (!rst_n) begin
+        data_out <= 8'h00;
+        data_regs50 <=8'h00;
+        data_regs51 <=8'h00;
+        data_regs52 <=8'h00;
+        data_regs53 <=8'h00;
+        data_regs54 <=8'h00;
     end
-    if ((~RD) && ALE) begin // 确保 ALE 已完成地址锁存
-        
-        case (address)
-            8'h50: data_out <= data_regs50;
-            8'h51: data_out <= data_regs51;
-            8'h52: data_out <= data_regs52;
-            8'h53: data_out <= data_regs53;
-            8'h54: data_out <= data_regs54;
-            8'hAA: data_out <= check_regs; 
-            8'h10: data_out <= ad_ch1[7:0];
-            8'h11: data_out <= ad_ch1[15:8];
-            8'h12: data_out <= ad_ch2[7:0];
-            8'h13: data_out <= ad_ch2[15:8];
-            8'h14: data_out <= ad_ch3[7:0];
-            8'h15: data_out <= ad_ch3[15:8];
-            8'h16: data_out <= ad_ch4[7:0];
-            8'h17: data_out <= ad_ch4[15:8];
-            8'h18: data_out <= ad_ch5[7:0];
-            8'h19: data_out <= ad_ch5[15:8];
-            8'h1A: data_out <= ad_ch6[7:0];
-            8'h1B: data_out <= ad_ch6[15:8];
-            8'h1C: data_out <= ad_ch7[7:0];
-            8'h1D: data_out <= ad_ch7[15:8];
-            8'h1E: data_out <= ad_ch8[7:0];
-            8'h1F: data_out <= ad_ch8[15:8];
-            default: begin
-                     data_out <= (8'hZZ);
-                     end 
-
-        endcase
-        // 可选择处理地址越界的情况
+    else begin
+        if ((~WR) && ALE) begin // 确保 ALE 已完成地址锁存
+            case (address)
+                8'h50: data_regs50 <= DB ;
+                8'h51: data_regs51 <= DB ;
+                8'h52: data_regs52 <= DB ;
+                8'h53: data_regs53 <= DB ;
+                8'h54: data_regs54 <= DB ;
+                8'hAA: check_regs <= DB;
+                default: begin
+                        data_regs50 <= (8'h00);
+                        data_regs51 <= (8'hZZ);
+                        data_regs52 <= (8'hZZ);
+                        data_regs53 <= (8'hZZ);
+                        data_regs54 <= (8'hZZ);
+                        end 
+            endcase
+        end
+        if ((~RD) && ALE) begin // 确保 ALE 已完成地址锁存
+            
+            case (address)
+                8'h50: data_out <= data_regs50;
+                8'h51: data_out <= data_regs51;
+                8'h52: data_out <= data_regs52;
+                8'h53: data_out <= data_regs53;
+                8'h54: data_out <= data_regs54;
+                8'hAA: data_out <= check_regs; 
+                8'h10: data_out <= ad_ch1[7:0];
+                8'h11: data_out <= ad_ch1[15:8];
+                8'h12: data_out <= ad_ch2[7:0];
+                8'h13: data_out <= ad_ch2[15:8];
+                8'h14: data_out <= ad_ch3[7:0];
+                8'h15: data_out <= ad_ch3[15:8];
+                8'h16: data_out <= ad_ch4[7:0];
+                8'h17: data_out <= ad_ch4[15:8];
+                8'h18: data_out <= ad_ch5[7:0];
+                8'h19: data_out <= ad_ch5[15:8];
+                8'h1A: data_out <= ad_ch6[7:0];
+                8'h1B: data_out <= ad_ch6[15:8];
+                8'h1C: data_out <= ad_ch7[7:0];
+                8'h1D: data_out <= ad_ch7[15:8];
+                8'h1E: data_out <= ad_ch8[7:0];
+                8'h1F: data_out <= ad_ch8[15:8];
+                default: begin
+                        data_out <= (8'hZZ);
+                        end 
+            endcase
+        end
     end
 end
 
 // 三态缓冲区驱动
 assign DB = (DB_tristate) ? data_out : 8'hZZ;
-//assign data_ad_os = data_regs50 [2:0];
-//assign freq_select = data_regs50 [4:3];
-//always @(posedge clk) begin
-//    DB_tristate<=1;
-//    data_out <=8'h0F;
-//end
-
 
 endmodule
